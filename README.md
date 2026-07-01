@@ -1,116 +1,103 @@
-# Hybrid Stacked Ensemble and Prophet-Based Multi-Horizon Forecasting of NIFTY and BANKNIFTY with XAI Interpretability
+# NIFTY & BANKNIFTY Forecasting with XAI
 
-**Authors:** Suyashi Singh, Diana Olivia  
-**Institution:** School of Computer Engineering, Manipal Institute of Technology, MAHE  
-**Conference:** CISCOM 2026 (Springer LNCS)
+A full-stack ML web application for multi-horizon price forecasting of India's two major stock indices — NIFTY 50 and BANKNIFTY — with explainable AI (XAI) interpretability built in.
 
----
-
-## Overview
-
-This repository contains the complete machine learning pipeline for hybrid multi-horizon forecasting of Indian stock market indices (NIFTY 50 and BANKNIFTY) using a stacked boosting ensemble for short-term prediction (T+1, T+5) and Facebook Prophet augmented with exogenous regressors for long-term trend estimation (T+30), with three-layer XAI interpretability via SHAP, LIME, and ELI5.
+Live demo: [nifty-banknifty-forecasting-xai.streamlit.app](https://nifty-banknifty-forecasting-xai.streamlit.app)
 
 ---
 
-## Repository Structure
+## What it does
 
-### `src/`
-
-| File | Description |
-|------|-------------|
-| `data_collection.py` | NIFTY/BANKNIFTY OHLCV via yfinance (2010-2024) |
-| `data_collection_fii_dii.py` | FII/DII institutional flow data |
-| `data_collection_reddit.py` | Reddit sentiment (r/IndiaInvestments) |
-| `data_preprocessing.py` | Merges OHLCV, macro, sentiment; handles missing values |
-| `feature_engineering.py` | Constructs 23 features |
-| `rescore_reddit_finbert.py` | VADER + FinBERT dual-model sentiment rescoring |
-| `train_nifty_short.py` | Stacked ensemble for NIFTY T+1/T+5 |
-| `train_banknifty_short.py` | Stacked ensemble for BANKNIFTY T+1/T+5 |
-| `train_nifty_prophet.py` | Prophet with exogenous regressors for NIFTY T+30 |
-| `train_banknifty_prophet.py` | Prophet with exogenous regressors for BANKNIFTY T+30 |
-| `baseline_vs_naive.py` | Ensemble vs XGBoost vs Naive Persistence evaluation |
-| `residual_analysis.py` | Prophet residual diagnostics |
-| `final_evaluation.py` | Consolidated evaluation report |
-| `xai.py` | SHAP, LIME, ELI5 for all 4 configurations |
-| `combine_xai_figures.py` | Combines XAI plots into paper-ready grids |
-| `plot_rmse_comparison.py` | RMSE comparison chart |
-| `plot_predicted_vs_actual.py` | Predicted vs actual prices |
-| `plot_fig5_prophet_forecast.py` | Prophet forecast with eval window |
-| `plot_fig6_residual_combined.py` | Residual diagnostics |
+- **Short-horizon forecasting (T+1, T+5):** A stacked ensemble of XGBoost, LightGBM, CatBoost, and AdaBoost with a Ridge meta-learner predicts next-day and next-week closing prices for NIFTY and BANKNIFTY.
+- **Long-horizon forecasting (T+30):** Facebook Prophet augmented with exogenous regressors (FII/DII flows, RBI repo rate, market sentiment) produces a 30-day ahead forecast with confidence intervals.
+- **Explainability (XAI):** SHAP, LIME, and ELI5 provide feature-level interpretability for all ensemble configurations — showing which features drive each prediction and by how much.
+- **Live market data:** Fetches real-time OHLCV data via yfinance and computes technical indicators on the fly for live predictions.
+- **Sentiment analysis:** Live stock news sentiment scoring via VADER on any NSE-listed ticker symbol.
 
 ---
 
-## Features
+## Tech stack
 
-**23 features total across 5 categories:**
-
-- **Technical indicators (9):** SMA, EMA, RSI, MACD, MACD_Signal, BB_Upper, BB_Middle, BB_Lower, ATR
-- **OHLCV (5):** Open, High, Low, Close, Volume
-- **Closing price lags (5):** Close_Lag_1, Close_Lag_2, Close_Lag_3, Close_Lag_5, Close_Lag_10
-- **Macroeconomic (3):** FII_Net, DII_Net, Repo_Rate
-- **Sentiment (1):** Reddit_Sentiment (VADER + FinBERT combined)
+| Layer | Tools |
+|---|---|
+| ML models | XGBoost, LightGBM, CatBoost, AdaBoost, Ridge, Facebook Prophet |
+| XAI | SHAP, LIME, ELI5 |
+| Features | TA-Lib (SMA, EMA, RSI, MACD, Bollinger Bands, ATR), FII/DII flows, RBI repo rate, Reddit sentiment (VADER + FinBERT) |
+| Frontend | Streamlit |
+| Data | yfinance, NSE India, RBI, Reddit (r/IndiaInvestments) |
+| Language | Python 3.12 |
 
 ---
 
-## Key Results
+## App pages
+
+| Page | Description |
+|---|---|
+| **Home** | Live NIFTY/BANKNIFTY ticker, stock news sentiment analyzer, quick prediction generator (T+1 / T+5 / T+30) |
+| **Backtest Prediction** | Select any historical date and see what the model would have predicted vs. what actually happened — full feature row transparency |
+| **Live Prediction** | End-to-end live inference: fetches today's market data, computes indicators, runs the ensemble, shows next-day prediction |
+| **Prophet Forecast** | 30-day ahead forecast chart with confidence band (yhat_lower / yhat_upper) |
+| **XAI Explainability** | SHAP beeswarm and bar plots, LIME local explanations, ELI5 permutation importance — for all 4 model configurations |
+
+---
+
+## Model performance
 
 | Index | Model | Horizon | RMSE | MAPE | DA |
-|-------|-------|---------|------|------|----|
-| NIFTY | Stacked Ensemble | Next-day (T+1) | 173.81 | 0.64% | 52.85% |
-| NIFTY | Stacked Ensemble | Next-week (T+5) | 385.89 | 1.56% | 58.10% |
-| NIFTY | Prophet | Next-month (T+30) | 742.18 | 3.69% | 62.07% |
-| BANKNIFTY | Stacked Ensemble | Next-day (T+1) | 470.23 | 0.78% | 52.91% |
-| BANKNIFTY | Stacked Ensemble | Next-week (T+5) | 1051.64 | 1.93% | 57.37% |
-| BANKNIFTY | Prophet | Next-month (T+30) | 2118.74 | 4.54% | 51.72% |
+|---|---|---|---|---|---|
+| NIFTY | Stacked Ensemble | T+1 | 173.81 | 0.64% | 52.85% |
+| NIFTY | Stacked Ensemble | T+5 | 385.89 | 1.56% | 58.10% |
+| NIFTY | Prophet | T+30 | 742.18 | 3.69% | 62.07% |
+| BANKNIFTY | Stacked Ensemble | T+1 | 470.23 | 0.78% | 52.91% |
+| BANKNIFTY | Stacked Ensemble | T+5 | 1051.64 | 1.93% | 57.37% |
+| BANKNIFTY | Prophet | T+30 | 2118.74 | 4.54% | 51.72% |
 
 ---
 
-## Running the Pipeline
+## Feature engineering (23 features)
 
-Run scripts in the following order:
+- **OHLCV (5):** Open, High, Low, Close, Volume
+- **Technical indicators (9):** SMA, EMA, RSI, MACD, MACD Signal, Bollinger Bands (Upper/Middle/Lower), ATR
+- **Lag features (5):** Close at T−1, T−2, T−3, T−5, T−10
+- **Macroeconomic (3):** FII Net flows, DII Net flows, RBI Repo Rate
+- **Sentiment (1):** Reddit sentiment score (VADER + FinBERT combined)
+
+---
+
+## Run locally
 
 ```bash
-python src/data_collection.py
-python src/data_collection_fii_dii.py
-python src/data_collection_reddit.py
-python src/rescore_reddit_finbert.py
-python src/data_preprocessing.py
-python src/feature_engineering.py
-python src/train_nifty_short.py
-python src/train_banknifty_short.py
-python src/train_nifty_prophet.py
-python src/train_banknifty_prophet.py
-python src/baseline_vs_naive.py
-python src/residual_analysis.py
-python src/xai.py
+git clone https://github.com/suyashisingh/nifty-banknifty-forecasting-xai.git
+cd nifty-banknifty-forecasting-xai
+pip install -r requirements-deploy.txt
+streamlit run app/Home.py
 ```
 
 ---
 
-## Requirements
+## Project structure
 
-```bash
-pip install -r requirements.txt
+```
+├── app/
+│   ├── Home.py
+│   ├── pages/
+│   │   ├── 1_Backtest_Prediction.py
+│   │   ├── 2_Live_Prediction.py
+│   │   ├── 3_Prophet_Forecast.py
+│   │   └── 4_XAI_Explainability.py
+│   └── utils/
+│       ├── data_loader.py
+│       ├── indicators.py
+│       └── inference.py
+├── models/          # Trained model artifacts (.pkl)
+├── data/            # Processed feature CSVs
+├── src/             # Training pipeline scripts
+└── requirements-deploy.txt
 ```
 
 ---
 
-## Data Sources
+## Author
 
-- **OHLCV:** NSE India (https://www.nseindia.com) via yfinance (https://github.com/ranaroussi/yfinance)
-- **FII/DII Flows:** NSE India (https://www.nseindia.com)
-- **RBI Repo Rate:** Reserve Bank of India (https://www.rbi.org.in)
-- **Reddit Sentiment:** r/IndiaInvestments (https://www.reddit.com/r/IndiaInvestments)
-
----
-
-## Notes
-
-- Reddit API credentials required — replace `YOUR_REDDIT_CLIENT_ID` and `YOUR_REDDIT_CLIENT_SECRET` in `src/data_collection_reddit.py`
-- Trained model artifacts (`.pkl`) and raw data files are excluded due to size. Run the pipeline sequentially to reproduce all results.
-
----
-
-## Citation
-
-Singh, S., Olivia, D.: Hybrid Stacked Ensemble and Prophet-Based Multi-Horizon Forecasting of NIFTY and BANKNIFTY with XAI Interpretability. In: CISCOM 2026, Springer LNCS.
+**Suyashi Singh**
+School of Computer Engineering, Manipal Institute of Technology, MAHE
