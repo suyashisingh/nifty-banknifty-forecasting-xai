@@ -1,0 +1,29 @@
+# Streamlit Community Cloud deployment requirements
+# Generated from: audit of app/ imports only
+# Full research pipeline deps are in requirements.txt (not this file)
+#
+# Pin notes:
+#   scikit-learn 1.9.0  — models were saved with this version; changing it risks
+#                         "InconsistentVersionWarning" or silent feature-importance shifts.
+#                         Pinned exactly to avoid silent breakage on Cloud.
+#   xgboost 3.2.0       — verified against saved pkl artifacts in local venv
+#   lightgbm 4.6.0      — verified
+#   catboost 1.2.10     — verified
+#   prophet 1.3.0       — verified; prophet pulls cmdstanpy as a transitive dep
+#   Other packages      — minimum version pinned to what was tested locally;
+#                         Streamlit Cloud can use any compatible newer patch.
+
+streamlit==1.58.0
+pandas>=3.0.3
+numpy>=2.4.6
+scikit-learn==1.9.0
+xgboost==3.2.0
+lightgbm==4.6.0
+catboost==1.2.10
+prophet==1.3.0
+joblib>=1.5.3
+plotly>=6.8.0
+yfinance>=1.4.1
+vaderSentiment>=3.3.2
+ta>=0.11.0
+Pillow>=12.2.0
