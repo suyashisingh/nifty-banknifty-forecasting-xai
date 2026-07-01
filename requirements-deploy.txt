@@ -28,3 +28,5 @@ vaderSentiment>=3.3.2
 ta>=0.11.0
 Pillow>=12.2.0
 plotly>=5.0.0
+
+plotly>=5.0.0
